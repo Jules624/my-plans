@@ -1,0 +1,22 @@
+[
+    {
+        "nom": "Cuisine",
+        "description": "Projet cuisine pour client XYZ",
+        "caissons": [
+            {
+                "nom": "Caisson \u00e9vier",
+                "largeur": 800,
+                "hauteur": 700,
+                "profondeur": 500,
+                "quantite": 2
+            },
+            {
+                "nom": "Caisson four",
+                "largeur": 600,
+                "hauteur": 700,
+                "profondeur": 500,
+                "quantite": 1
+            }
+        ]
+    }
+]
