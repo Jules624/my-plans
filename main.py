@@ -22,7 +22,7 @@ def lire_projets():
         } for c in projet.caissons]
     }]}
 
-@app.post("/generer_caisson")
+@app.post("/generer_caisson_complet")
 def generer_caisson(params: CaissonCompleteParams):
     caisson = Caisson(
         nom="Caisson Généré",
