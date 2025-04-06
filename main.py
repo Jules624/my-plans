@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from project import Projet, Caisson, sauvegarder_projets, charger_projets, generer_dxf
 from initial_data import projets_init
+from models import CaissonCompleteParams, CaissonCompleteParams
+from dxf_generator_top import generer_dxf_top_view_caisson
+from dxf_generator_side import generer_dxf_side_view_caisson
 
 app = FastAPI()
 
-# Initialisation de la liste des projets avec les données d'exemple
+# Utilisation des données d'exemple
+# (Assure-toi que projets_init est une liste de projets déjà définie dans initial_data.py)
 projets = projets_init
+
 
 @app.get("/")
 def lire_projets():
@@ -25,16 +30,19 @@ def lire_projets():
         })
     return {"projets": result}
 
+
 @app.post("/sauvegarder")
 def sauvegarder():
     sauvegarder_projets(projets)
     return {"message": "Les projets ont été sauvegardés avec succès."}
+
 
 @app.get("/charger")
 def charger():
     global projets
     projets = charger_projets()
     return {"message": "Projets chargés", "nombre": len(projets)}
+
 
 @app.get("/dxf/{nom_caisson}")
 def generer_dxf_endpoint(nom_caisson: str):
@@ -44,8 +52,46 @@ def generer_dxf_endpoint(nom_caisson: str):
     for projet in projets:
         for c in projet.caissons:
             if c.nom.lower() == nom_caisson.lower():
-                # Créer un nom de fichier basé sur le nom du caisson
                 filename = f"{c.nom.replace(' ', '_')}.dxf"
                 generer_dxf(c, filename)
                 return {"message": f"DXF généré pour {c.nom}", "fichier": filename}
     return {"message": "Caisson non trouvé"}
+
+
+@app.post("/generer_caisson_complet")
+def generer_caisson_complet(params: CaissonCompleteParams):
+    """
+    Génère en une seule fois la vue de dessus et la vue de côté d'un caisson.
+
+    Le modèle CaissonCompleteParams contient :
+      - largeur: pour la vue de dessus,
+      - hauteur: pour la vue de côté,
+      - profondeur: dimension commune,
+      - epaisseur_montant: épaisseur des montants pour la vue de côté,
+      - epaisseur_fond: épaisseur du fond pour la vue de côté.
+    """
+    # Vue de dessus
+    filename_top = f"caisson_top_{int(params.largeur)}x{int(params.profondeur)}.dxf"
+    generer_dxf_top_view_caisson(
+        largeur=params.largeur,
+        epaisseur_montant=params.epaisseur_montant,
+        epaisseur_fond=params.epaisseur_fond,
+        profondeur=params.profondeur,
+        filename=filename_top
+    )
+
+    # Vue de côté
+    filename_side = f"caisson_side_{int(params.hauteur)}x{int(params.profondeur)}.dxf"
+    generer_dxf_side_view_caisson(
+        hauteur=params.hauteur,
+        profondeur=params.profondeur,
+        epaisseur_montant=params.epaisseur_montant,
+        epaisseur_fond=params.epaisseur_fond,
+        filename=filename_side
+    )
+
+    return {
+        "message": "DXF complet généré avec succès",
+        "fichier_top": filename_top,
+        "fichier_side": filename_side
+    }
