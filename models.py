@@ -1,8 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class CaissonCompleteParams(BaseModel):
-    largeur: float         # Pour la vue de dessus (largeur totale)
-    hauteur: float         # Pour la vue de côté (hauteur totale)
-    profondeur: float      # Profondeur totale du caisson
-    epaisseur_montant: float  # Épaisseur des montants pour la vue de côté
-    epaisseur_fond: float     # Épaisseur du fond (ou traverses) pour la vue de côté
+    nom: str = Field(..., description="Nom de la caisson")
+    largeur: float = Field(..., gt=0, description="Largeur totale du caisson (vue de dessus)")
+    hauteur: float = Field(..., gt=0, description="Hauteur totale du caisson (vue de côté)")
+    profondeur: float = Field(..., gt=0, description="Profondeur totale du caisson")
+    epaisseur_montant: float = Field(..., gt=0, description="Épaisseur des montants (vue de côté)")
+    epaisseur_fond: float = Field(..., gt=0, description="Épaisseur du fond (vue de côté)")
+    epaisseur_traverse: float = Field(..., gt=0, description="Épaisseur des traverses (vue de côté)")
+    quantite: int = Field(..., gt=0, description="quantite")

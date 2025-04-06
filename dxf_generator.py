@@ -1,12 +1,13 @@
 import ezdxf
 
 class DXFGenerator:
-    def __init__(self, largeur, hauteur, profondeur, epaisseur_montant, epaisseur_fond):
+    def __init__(self, largeur, hauteur, profondeur, epaisseur_montant, epaisseur_fond, epaisseur_traverse):
         self.largeur = largeur       # Pour la vue de dessus
         self.hauteur = hauteur       # Pour la vue de côté
         self.profondeur = profondeur
         self.epaisseur_montant = epaisseur_montant
         self.epaisseur_fond = epaisseur_fond
+        self.epaisseur_traverse = epaisseur_traverse
 
     def generate_top_view(self, filename):
         """Génère la vue de dessus (top) du caisson."""
@@ -52,7 +53,7 @@ class DXFGenerator:
         """Génère la vue de côté (side) du caisson."""
         H = self.hauteur
         D = self.profondeur
-        M = self.epaisseur_montant
+        M = self.epaisseur_traverse
         F = self.epaisseur_fond
 
         doc = ezdxf.new(dxfversion='R2010')
@@ -70,7 +71,7 @@ class DXFGenerator:
         msp.add_line((F, H), (0, H))
         msp.add_line((0, H), (0, 0))
 
-        # Montant inférieur (panneau inférieur)
+        # Traverse inférieur (panneau inférieur)
         msp.add_line((F, 0), (D, 0))
         msp.add_line((D, 0), (D, M))
         msp.add_line((D, M), (F, M))

@@ -1,22 +1,32 @@
 [
     {
-        "nom": "Cuisine",
-        "description": "Projet cuisine pour client XYZ",
-        "caissons": [
-            {
-                "nom": "Caisson \u00e9vier",
-                "largeur": 800,
-                "hauteur": 700,
-                "profondeur": 500,
-                "quantite": 2
-            },
-            {
-                "nom": "Caisson four",
-                "largeur": 600,
-                "hauteur": 700,
-                "profondeur": 500,
-                "quantite": 1
-            }
-        ]
+        "nom": "Caisson Test",
+        "largeur": 900.0,
+        "hauteur": 2000.0,
+        "profondeur": 550.0,
+        "quantite": 5,
+        "epaisseur_montant": 19.0,
+        "epaisseur_fond": 8.0,
+        "epaisseur_traverse": 19.0
+    },
+    {
+        "nom": "Caisson Test",
+        "largeur": 900.0,
+        "hauteur": 2000.0,
+        "profondeur": 550.0,
+        "quantite": 1,
+        "epaisseur_montant": 19.0,
+        "epaisseur_fond": 8.0,
+        "epaisseur_traverse": 19.0
+    },
+    {
+        "nom": "Caisson Test",
+        "largeur": 900.0,
+        "hauteur": 1000.0,
+        "profondeur": 550.0,
+        "quantite": 1,
+        "epaisseur_montant": 19.0,
+        "epaisseur_fond": 8.0,
+        "epaisseur_traverse": 19.0
     }
 ]

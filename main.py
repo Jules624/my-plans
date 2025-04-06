@@ -1,40 +1,109 @@
-from fastapi import FastAPI
-from models import CaissonCompleteParams
+import json
+import os
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
 from caisson import Caisson
+from models import CaissonCompleteParams
 from project import Projet
+
+
+projects_file = "projets.json"
 
 app = FastAPI()
 
-# Exemple : création d'un projet et ajout d'un caisson
-projet = Projet("Projet Test", "Exemple de projet avec un caisson")
-caisson = Caisson("Caisson Test", 600, 2000, 500, 1, epaisseur_montant=19, epaisseur_fond=8)
-projet.ajouter_caisson(caisson)
-
-@app.get("/")
-def lire_projets():
-    return {"projets": [{
-        "nom": projet.nom,
-        "description": projet.description,
-        "caissons": [{
-            "nom": c.nom,
-            "dimensions": f"{c.largeur}x{c.hauteur}x{c.profondeur}",
-            "quantite": c.quantite
-        } for c in projet.caissons]
-    }]}
-
-@app.post("/generer_caisson_complet")
-def generer_caisson(params: CaissonCompleteParams):
+@app.post("/generer_caisson")
+async def generer_caisson(params: CaissonCompleteParams):
+    print(params)
     caisson = Caisson(
-        nom="Caisson Généré",
+        nom=params.nom,
         largeur=params.largeur,
         hauteur=params.hauteur,
         profondeur=params.profondeur,
-        quantite=1,
+        quantite=params.quantite,
         epaisseur_montant=params.epaisseur_montant,
-        epaisseur_fond=params.epaisseur_fond
+        epaisseur_fond=params.epaisseur_fond,
+        epaisseur_traverse=params.epaisseur_traverse
     )
-    fichiers = caisson.generate_dxf()
-    return {"message": "DXF généré", "fichiers": fichiers}
+
+    dxf_files = caisson.generate_dxf()
+
+    if "error" in dxf_files:
+        raise HTTPException(status_code=400, detail=dxf_files["error"])
+
+    if os.path.exists(projects_file):
+        with open(projects_file, "r") as f:
+            projets = json.load(f)
+    else:
+        projets = []
+
+    new_projet = caisson.to_dict()
+
+    projets.append(new_projet)
+
+    try:
+        with open(projects_file, "w") as f:
+            json.dump(projets, f, indent=4)
+        print(f"Caisson added successfully to {projects_file}")
+
+        # Optionally check if the file exists and content is written correctly
+        if os.path.exists(projects_file):
+            with open(projects_file, "r") as f:
+                data = json.load(f)
+                if data and isinstance(data, list):
+                    print("File exists and contains valid JSON data.")
+                else:
+                    print("Warning: File is empty or contains invalid data.")
+        else:
+            print(f"Error: File {projects_file} could not be created.")
+
+    except Exception as e:
+        print(f"Error while writing to {projects_file}: {e}")
+
+    return {"message": "Caisson added successfully", "new_projet": new_projet}
+
+
+@app.get("/projets")
+def liste_projets():
+    projets = Projet.charger("projets.json")
+    return {
+        "projets": [{
+            "nom": p.nom,
+            "description": p.description,
+            "caissons": [{
+                "nom": c.nom,
+                "largeur": c.largeur,
+                "hauteur": c.hauteur,
+                "profondeur": c.profondeur,
+                "quantite": c.quantite
+            } for c in p.caissons
+            ]
+        }
+            for p in projets
+        ]
+    }
+
+@app.get("/projets/{nom}")
+def liste_projet(nom: str):
+    projets = Projet.charger("projets.json")
+    print(projets)
+    for p in projets:
+        print("Projet trouvé:", p.nom)
+        if p.nom.lower() == nom.lower():
+            return {
+                "nom": p.nom,
+                "description": p.description,
+                "caissons": [{
+                    "nom": c.nom,
+                    "largeur": c.largeur,
+                    "hauteur": c.hauteur,
+                    "profondeur": c.profondeur,
+                    "quantite": c.quantite
+                } for c in p.caissons
+                ]
+            }
+    raise HTTPException(status_code=404, detail=f"Projet {nom} n'existe pas" )
 
 if __name__ == "__main__":
     import uvicorn
