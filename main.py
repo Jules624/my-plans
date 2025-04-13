@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from caisson import Caisson
 from models import CaissonCompleteParams
-from porte import Porte  # Assure-toi que ce fichier est bien à jour
+from porte import Porte
 from project import Projet
 
 projects_file = "projets.json"
@@ -15,6 +15,8 @@ app = FastAPI()
 @app.post("/generer_caisson")
 async def generer_caisson(params: CaissonCompleteParams):
     print(params)
+
+    # Création de la porte si elle est fournie
     door = None
     if params.porte is not None:
         door = Porte(
@@ -27,6 +29,7 @@ async def generer_caisson(params: CaissonCompleteParams):
             jeu_avant=params.porte.get("jeu_avant")
         )
 
+    # Création du caisson
     caisson = Caisson(
         nom=params.nom,
         largeur=params.largeur,
@@ -36,44 +39,39 @@ async def generer_caisson(params: CaissonCompleteParams):
         epaisseur_montant=params.epaisseur_montant,
         epaisseur_fond=params.epaisseur_fond,
         epaisseur_traverse=params.epaisseur_traverse,
-        porte=door
+        porte=door,
+        nombre_tablettes=params.nombre_tablettes,
+        epaisseur_tablette=params.epaisseur_tablette
     )
 
+    # Génération des fichiers DXF
     dxf_files = caisson.generate_dxf()
-
     if "error" in dxf_files:
         raise HTTPException(status_code=400, detail=dxf_files["error"])
 
+    # Chargement des projets existants (s'il y en a)
+    projets = []
     if os.path.exists(projects_file):
-        with open(projects_file, "r") as f:
-            projets = json.load(f)
-    else:
-        projets = []
+        try:
+            with open(projects_file, "r") as f:
+                projets = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Erreur lecture fichier projet : {e}")
 
+    # Ajout du nouveau caisson au projet
     new_projet = caisson.to_dict()
     projets.append(new_projet)
 
+    # Sauvegarde dans le fichier JSON
     try:
         with open(projects_file, "w") as f:
             json.dump(projets, f, indent=4)
-        print(f"Caisson added successfully to {projects_file}")
-
-        # Optionnel : vérification du fichier JSON
-        if os.path.exists(projects_file):
-            with open(projects_file, "r") as f:
-                data = json.load(f)
-                if data and isinstance(data, list):
-                    print("File exists and contains valid JSON data.")
-                else:
-                    print("Warning: File is empty or contains invalid data.")
-        else:
-            print(f"Error: File {projects_file} could not be created.")
+        print(f"Caisson ajouté avec succès à {projects_file}")
+        return {"message": "Caisson added successfully", "new_projet": new_projet}
 
     except Exception as e:
-        print(f"Error while writing to {projects_file}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error while writing to {projects_file}: {e}")
-
-    return {"message": "Caisson added successfully", "new_projet": new_projet}
+        print(f"Erreur lors de l'écriture de {projects_file} : {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur écriture projet : {e}")
 
 
 @app.get("/projets")

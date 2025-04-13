@@ -1,0 +1,14 @@
+[
+    {
+        "nom": "Caisson Toto",
+        "largeur": 600.0,
+        "hauteur": 1200.0,
+        "profondeur": 550.0,
+        "quantite": 1,
+        "epaisseur_montant": 19.0,
+        "epaisseur_traverse": 19.0,
+        "epaisseur_fond": 8.0,
+        "porte": "Porte(simple, epaisseur=19, jeux: gauche=0, droit=0, haut=0, bas=0, avant=2)",
+        "nombre_tablettes": 1
+    }
+]
