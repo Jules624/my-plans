@@ -1,0 +1,73 @@
+# Fichiers compilés Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Fichiers C extension
+*.so
+
+# Environnements virtuels
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Fichiers générés par PyInstaller
+*.manifest
+*.spec
+
+# Logs et fichiers de débogage
+pip-log.txt
+pip-delete-this-directory.txt
+*.log
+
+# Couverture de test
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Fichiers de documentation (Sphinx)
+docs/_build/
+temp/
+
+# Fichiers spécifiques aux IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# Fichiers de configuration locaux
+.env
+
+# Fichiers de cache de mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
